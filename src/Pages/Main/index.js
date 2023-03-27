@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Container, Form, SubmitButton, List, DeleteButton } from './style';
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 import api from '../../Services/api';
 
@@ -10,18 +11,45 @@ export default function Main() {
     const [repos, setRepos] = useState([]);
     const [loading, setLoading] = useState(false);
 
+
+    useEffect(() => {
+        const repoStorage = localStorage.getItem('@repos');
+
+        if(repoStorage){
+            setRepos(JSON.parse(repoStorage));
+        }
+    },[]);
+
+
+    useEffect(() => {
+        localStorage.setItem('@repos', JSON.stringify(repos));
+    }, [repos]);
+
     const handleSubmit = useCallback((e) => {
         e.preventDefault();
 
         async function submit() {
             setLoading(true)
             try {
+
+                if(newRepo === ''){
+                    toast.error("Digite o espaço em branco!")
+                }
+
                 const response = await api.get(`repos/${newRepo}`)
+
+                const hasRepo = repos.find(repo => repo.name === newRepo);
+
+                if(hasRepo){
+                    toast.info("Repositório já adicionado!")
+                    return;
+                }
 
                 const data = {
                     name: response.data.full_name,
                 };
 
+                toast.success('Repositorio adicionado com sucesso!')
                 setRepos([...repos, data]);
                 setNewRepo('');
             } catch (error) {
