@@ -3,6 +3,8 @@ import { Container, Form, SubmitButton, List, DeleteButton } from './style';
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
+import { Link } from 'react-router-dom';
+
 import api from '../../Services/api';
 
 export default function Main() {
@@ -104,9 +106,9 @@ export default function Main() {
                                 </DeleteButton>
                                 {item.name}
                                 </span>
-                            <a href="#">
+                            <Link to={`/repositorio/${encodeURIComponent(item.name)}`}>
                                 <FaBars size={14}/>
-                            </a>
+                            </Link>
                         </li>
                     )
                 })}

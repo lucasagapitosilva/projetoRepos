@@ -7,7 +7,7 @@ export default function Rotas() {
     return (
         <Routes>
             <Route path='/' element={<Main />} />
-            <Route path='/repositorio' element={<Repositorio />} />
+            <Route path='/repositorio/:repositorio' element={<Repositorio />} />
         </Routes>
     )
 }
