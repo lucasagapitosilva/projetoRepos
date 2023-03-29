@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Container, Owner, BackButton, Loading, IssuesList, PageActions } from './style';
+import { Container, Owner, BackButton, Loading, IssuesList, PageActions, FilterList } from './style';
 import { useState, useEffect } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 
@@ -12,6 +12,13 @@ export default function Repositorio() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
 
+    const [filters, setFilters] = useState([
+        { state: 'all', label: 'All', active: true },
+        { state: 'open', label: 'Open', active: false },
+        { state: 'closed', label: 'Closed', active: false }
+    ]);
+    const [filtersIndex, setFiltersIndex] = useState(0);
+
     const { repositorio } = useParams();
 
 
@@ -22,7 +29,7 @@ export default function Repositorio() {
                 api.get(`/repos/${nomeRepo}`),
                 api.get(`/repos/${nomeRepo}/issues`, {
                     params: {
-                        state: 'open',
+                        state: filters.find(f => f.active).state,
                         per_page: 5
                     }
                 })
@@ -42,7 +49,7 @@ export default function Repositorio() {
             const nomeRepo = decodeURIComponent(repositorio);
             const response = await api.get(`/repos/${nomeRepo}/issues`, {
                 params: {
-                    state: 'open',
+                    state: filters[filtersIndex].state,
                     page,
                     per_page: 5,
                 }
@@ -53,7 +60,7 @@ export default function Repositorio() {
         };
 
         loadPage();
-    }, [page, repositorio]);
+    }, [filters, filtersIndex, page, repositorio]);
 
 
     function handlePage(action) {
@@ -70,6 +77,11 @@ export default function Repositorio() {
     }
 
 
+    function handleFilters(index){
+        setFiltersIndex(index);
+    }
+
+
     return (
         <Container>
             <BackButton to="/">
@@ -81,6 +93,20 @@ export default function Repositorio() {
                 <h1>{repos.name}</h1>
                 <p>{repos.description}</p>
             </Owner>
+
+            <FilterList active={filtersIndex}>
+                {filters.map((filter, index) => {
+                    return (
+                        <button
+                            type='button'
+                            key={filter.label}
+                            onClick={() => handleFilters(index)}
+                        >
+                            {filter.label}
+                        </button>
+                    )
+                })}
+            </FilterList>
 
             <IssuesList>
                 {issues.map((item) => {
